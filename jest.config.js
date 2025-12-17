@@ -1,6 +1,14 @@
 /** @type {import('ts-jest').JestConfigWithTsJest} */
-module.exports = {
-	preset: "ts-jest",
-	testEnvironment: "node",
-	testMatch: ["**/tests/**/*.test.ts"],
-};
+const nextJest = require("next/jest");
+const dotenv = require("dotenv");
+
+dotenv.config({ path: ".env.development" });
+
+const createJestConfig = nextJest({
+	dir: ".",
+});
+const jestConfig = createJestConfig({
+	moduleDirectories: ["node_modules", "<rootDir>/"],
+});
+
+module.exports = jestConfig;
