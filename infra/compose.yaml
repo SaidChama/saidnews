@@ -1,7 +1,7 @@
 services:
   db:
     image: "postgres:16.0-alpine3.18"
-    container_name: saidnews-db
+    container_name: ${POSTGRES_CONTAINER_NAME}
     env_file:
       - ../.env.development
     ports:
