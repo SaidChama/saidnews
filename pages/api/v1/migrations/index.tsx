@@ -30,7 +30,7 @@ export default async function migrations(request: any, response: any) {
 				defaultMigrationOptions,
 			);
 
-			response.status(200).json(pendingMigrations);
+			return response.status(200).json(pendingMigrations);
 		}
 
 		if (request.method === "POST") {
@@ -40,10 +40,10 @@ export default async function migrations(request: any, response: any) {
 			});
 
 			if (migratedMigrations.length > 1) {
-				response.status(201).json(migratedMigrations);
+				return response.status(201).json(migratedMigrations);
 			}
 
-			response.status(200).json(migratedMigrations);
+			return response.status(200).json(migratedMigrations);
 		}
 	} catch (error) {
 		console.error("Migration error:", error);
