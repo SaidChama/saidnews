@@ -1,4 +1,3 @@
-import { get } from "node:http";
 import { Client, type QueryConfig, type QueryResult } from "pg";
 
 async function query(queryObject: string | QueryConfig): Promise<QueryResult> {
@@ -32,10 +31,12 @@ async function getNewClient(): Promise<Client> {
 	return client;
 }
 
-export default {
+const database = {
 	query,
 	getNewClient,
 };
+
+export default database;
 
 function getSSLValues() {
 	if (process.env.POSTGRES_CA) {
