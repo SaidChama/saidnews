@@ -1,4 +1,4 @@
-name: Automated Tests
+name: Automated Test
 
 on: pull_request
 
