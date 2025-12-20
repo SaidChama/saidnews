@@ -1,4 +1,3 @@
-import { get } from "node:http";
 import { Client, type QueryConfig, type QueryResult } from "pg";
 
 async function query(queryObject: string | QueryConfig): Promise<QueryResult> {
