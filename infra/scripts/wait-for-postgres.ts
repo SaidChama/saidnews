@@ -6,7 +6,7 @@ const host = process.env.POSTGRES_HOST;
 function checkPostgres() {
 	exec(`docker exec ${pgName} pg_isready --host ${host}`, handleReturn);
 
-	function handleReturn(error, stdout, stderr) {
+	function handleReturn(error, stdout) {
 		if (stdout.search("accepting connections") === -1) {
 			process.stdout.write(".");
 			checkPostgres();
