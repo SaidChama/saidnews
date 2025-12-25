@@ -17,7 +17,7 @@
 		"migrations:down": "node-pg-migrate -m infra/migrations down",
 		"lint:prettier:check": "prettier --check .",
 		"lint:prettier:fix": "prettier --write .",
-		"lint:eslint:check": "next lint",
+		"lint:eslint:check": "next lint .",
 		"prepare": "husky",
 		"commit": "cz"
 	},
