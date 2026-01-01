@@ -1,4 +1,5 @@
 import useSWR from "swr";
+import React from "react";
 
 async function fetchApi(key) {
 	const response = await fetch(key);
@@ -33,7 +34,7 @@ function UpdatedAt() {
 function DatabaseStatus() {
 	const { isLoading, data } = useSWR("/api/v1/status", fetchApi);
 
-	let databaseStatusInformation = "Carregando...";
+	let databaseStatusInformation: React.ReactNode = "Carregando...";
 
 	if (!isLoading && data) {
 		databaseStatusInformation = (
