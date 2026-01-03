@@ -1,7 +1,8 @@
 import database from "infra/database";
 import { ValidationError } from "infra/errors";
+import { CreateUserInput, UserRecord } from "./types";
 
-async function create(userInputValues: any) {
+async function create(userInputValues: CreateUserInput): Promise<UserRecord> {
 	await validateUniqueUsername(userInputValues.username);
 	await validateUniqueEmail(userInputValues.email);
 
@@ -26,7 +27,6 @@ async function create(userInputValues: any) {
 				message: "O nome de usuário informado já está sendo utilizado.",
 				action: "Utilize outro nome de usuário para realizar o cadastro.",
 			});
-			return;
 		}
 	}
 
@@ -48,11 +48,12 @@ async function create(userInputValues: any) {
 				message: "O e-mail informado já está sendo utilizado.",
 				action: "Utilize outro e-mail para realizar o cadastro.",
 			});
-			return;
 		}
 	}
 
-	async function runInsertQuery(userInputValues: any) {
+	async function runInsertQuery(
+		userInputValues: CreateUserInput,
+	): Promise<UserRecord> {
 		const results = await database.query({
 			text: `
                 INSERT INTO 

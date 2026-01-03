@@ -28,8 +28,9 @@ describe("POST /api/v1/users", () => {
 			const responseBody = await response.json();
 
 			expect(response.status).toBe(201);
+			const { password, ...userWithoutPassword } = responseBody;
 			expect(responseBody).toEqual({
-				...user,
+				...userWithoutPassword,
 				id: responseBody.id,
 				created_at: responseBody.created_at,
 				updated_at: responseBody.updated_at,
@@ -73,8 +74,10 @@ describe("POST /api/v1/users", () => {
 			const response1Body = await response1.json();
 
 			expect(response1.status).toBe(201);
+			const { password, ...duplicatedUsername1WithoutPassword } =
+				response1Body;
 			expect(response1Body).toEqual({
-				...duplicatedUsername1,
+				...duplicatedUsername1WithoutPassword,
 				id: response1Body.id,
 				created_at: response1Body.created_at,
 				updated_at: response1Body.updated_at,
@@ -133,8 +136,10 @@ describe("POST /api/v1/users", () => {
 			const response1Body = await response1.json();
 
 			expect(response1.status).toBe(201);
+			const { password, ...duplicatedEmailUser1WithoutPassword } =
+				response1Body;
 			expect(response1Body).toEqual({
-				...duplicatedEmailUser1,
+				...duplicatedEmailUser1WithoutPassword,
 				id: response1Body.id,
 				created_at: response1Body.created_at,
 				updated_at: response1Body.updated_at,
