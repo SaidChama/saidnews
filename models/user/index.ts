@@ -1,6 +1,7 @@
 import database from "infra/database";
 import { NotFoundError, ValidationError } from "infra/errors";
 import { CreateUserInput, UserRecord } from "./types";
+import password from "models/password";
 
 async function findOneByUsername(username: string): Promise<UserRecord> {
 	const userFound = await runSelectQuery(username);
@@ -37,6 +38,7 @@ async function findOneByUsername(username: string): Promise<UserRecord> {
 async function create(userInputValues: CreateUserInput): Promise<UserRecord> {
 	await validateUniqueUsername(userInputValues.username);
 	await validateUniqueEmail(userInputValues.email);
+	await hashPasswordInObject(userInputValues);
 
 	const newUser = await runInsertQuery(userInputValues);
 	return newUser;
@@ -81,6 +83,11 @@ async function create(userInputValues: CreateUserInput): Promise<UserRecord> {
 				action: "Utilize outro e-mail para realizar o cadastro.",
 			});
 		}
+	}
+
+	async function hashPasswordInObject(userInputValues: CreateUserInput) {
+		const hashedPassword = await password.hash(userInputValues.password);
+		userInputValues.password = hashedPassword;
 	}
 
 	async function runInsertQuery(

@@ -12,6 +12,7 @@ export default router.handler(controller.errorHandlers);
 async function getHandler(request: NextApiRequest, response: NextApiResponse) {
 	const username = request.query.username;
 	const userRecord = await user.findOneByUsername(username as string);
-	const { password, ...publicUserRecord } = userRecord;
-	return response.status(200).json(publicUserRecord);
+	// const { password, ...publicUserRecord } = userRecord;
+	// return response.status(200).json(publicUserRecord);
+	return response.status(200).json(userRecord);
 }
