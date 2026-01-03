@@ -1,6 +1,38 @@
 import database from "infra/database";
-import { ValidationError } from "infra/errors";
+import { NotFoundError, ValidationError } from "infra/errors";
 import { CreateUserInput, UserRecord } from "./types";
+
+async function findOneByUsername(username: string): Promise<UserRecord> {
+	const userFound = await runSelectQuery(username);
+	return userFound;
+
+	async function runSelectQuery(username: string): Promise<UserRecord> {
+		const result = await database.query({
+			text: `
+			SELECT
+				*
+			FROM
+				users
+			WHERE
+				LOWER(username) = LOWER($1)
+			LIMIT
+				1
+			;`,
+			values: [username],
+		});
+		await validateUserByRowCount(result.rowCount);
+		return result.rows[0];
+	}
+
+	async function validateUserByRowCount(resultRowsNumber: number) {
+		if (resultRowsNumber === 0) {
+			throw new NotFoundError({
+				message: "Usuário não encontrado.",
+				action: "Verifique se o nome de usuário informado está correto.",
+			});
+		}
+	}
+}
 
 async function create(userInputValues: CreateUserInput): Promise<UserRecord> {
 	await validateUniqueUsername(userInputValues.username);
@@ -74,6 +106,7 @@ async function create(userInputValues: CreateUserInput): Promise<UserRecord> {
 
 const user = {
 	create,
+	findOneByUsername,
 };
 
 export default user;
