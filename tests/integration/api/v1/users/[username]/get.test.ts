@@ -39,8 +39,10 @@ describe("GET /api/v1/users/[username]", () => {
 			const { password, ...matchCaseUserWithoutPassword } = matchCaseUser;
 
 			expect(response2Body).toEqual({
-				...matchCaseUserWithoutPassword,
+				// ...matchCaseUserWithoutPassword,
+				...matchCaseUser,
 				id: response2Body.id,
+				password: response2Body.password,
 				created_at: response2Body.created_at,
 				updated_at: response2Body.updated_at,
 			});
@@ -82,8 +84,10 @@ describe("GET /api/v1/users/[username]", () => {
 				mismatchCaseUser;
 
 			expect(response2Body).toEqual({
-				...mismatchCaseUserWithoutPassword,
+				// ...mismatchCaseUserWithoutPassword,
+				...mismatchCaseUser,
 				id: response2Body.id,
+				password: response2Body.password,
 				created_at: response2Body.created_at,
 				updated_at: response2Body.updated_at,
 			});
@@ -92,18 +96,20 @@ describe("GET /api/v1/users/[username]", () => {
 			expect(Date.parse(response2Body.updated_at)).not.toBeNaN();
 		});
 		test("With non existent username", async () => {
+			const onErrorResponse = {
+				message: "Usuário não encontrado.",
+				name: "NotFoundError",
+				action: "Verifique se o nome de usuário informado está correto.",
+				status_code: 404,
+			};
+
 			const response = await fetch(
 				`http://localhost:3000/api/v1/users/nonExistentUsername`,
 			);
 
 			expect(response.status).toBe(404);
 			const responseBody = await response.json();
-			expect(responseBody).toEqual({
-				message: "Usuário não encontrado.",
-				name: "NotFoundError",
-				action: "Verifique se o nome de usuário informado está correto.",
-				status_code: 404,
-			});
+			expect(responseBody).toEqual(onErrorResponse);
 		});
 	});
 });

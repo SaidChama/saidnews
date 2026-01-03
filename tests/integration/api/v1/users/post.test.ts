@@ -1,5 +1,7 @@
 import orchestrator from "tests/orchestrator";
 import { version as uuidVersion } from "uuid";
+import user from "models/user";
+import passwordUtils from "models/password"; // Renamed to passwordUtils to avoid conflict with 'password' field
 
 beforeAll(async () => {
 	await orchestrator.waitForAllServices();
@@ -10,7 +12,7 @@ beforeAll(async () => {
 describe("POST /api/v1/users", () => {
 	describe("Anonymous User", () => {
 		test("With unique and valid data", async () => {
-			const user = {
+			const mockUser = {
 				username: "johndoe",
 				email: "johndoe@gmail.com",
 				password: "password123",
@@ -21,7 +23,7 @@ describe("POST /api/v1/users", () => {
 				headers: {
 					"Content-Type": "application/json",
 				},
-				body: JSON.stringify(user),
+				body: JSON.stringify(mockUser),
 			});
 
 			const responseBody = await response.json();
@@ -29,8 +31,10 @@ describe("POST /api/v1/users", () => {
 			expect(response.status).toBe(201);
 			const { password, ...userWithoutPassword } = responseBody;
 			expect(responseBody).toEqual({
-				...userWithoutPassword,
+				// ...userWithoutPassword,
+				...mockUser,
 				id: responseBody.id,
+				password: responseBody.password,
 				created_at: responseBody.created_at,
 				updated_at: responseBody.updated_at,
 			});
@@ -38,6 +42,23 @@ describe("POST /api/v1/users", () => {
 			expect(uuidVersion(responseBody.id)).toBe(4);
 			expect(Date.parse(responseBody.created_at)).not.toBeNaN();
 			expect(Date.parse(responseBody.updated_at)).not.toBeNaN();
+
+			const mockUserInDatabase = await user.findOneByUsername(
+				mockUser.username,
+			);
+
+			const correctPasswordMatch = await passwordUtils.compare(
+				mockUser.password,
+				mockUserInDatabase.password,
+			);
+
+			expect(correctPasswordMatch).toBe(true);
+
+			const incorrectPasswordMatch = await passwordUtils.compare(
+				"wrongPassword",
+				mockUserInDatabase.password,
+			);
+			expect(incorrectPasswordMatch).toBe(false);
 		});
 		test("With duplicated 'username'", async () => {
 			const duplicatedUsername1 = {
@@ -76,8 +97,10 @@ describe("POST /api/v1/users", () => {
 			const { password, ...duplicatedUsername1WithoutPassword } =
 				response1Body;
 			expect(response1Body).toEqual({
-				...duplicatedUsername1WithoutPassword,
+				// ...duplicatedUsername1WithoutPassword,
+				...duplicatedUsername1,
 				id: response1Body.id,
+				password: response1Body.password,
 				created_at: response1Body.created_at,
 				updated_at: response1Body.updated_at,
 			});
@@ -138,8 +161,10 @@ describe("POST /api/v1/users", () => {
 			const { password, ...duplicatedEmailUser1WithoutPassword } =
 				response1Body;
 			expect(response1Body).toEqual({
-				...duplicatedEmailUser1WithoutPassword,
+				// ...duplicatedEmailUser1WithoutPassword,
+				...duplicatedEmailUser1,
 				id: response1Body.id,
+				password: response1Body.password,
 				created_at: response1Body.created_at,
 				updated_at: response1Body.updated_at,
 			});

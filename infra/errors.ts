@@ -113,3 +113,25 @@ export class NotFoundError extends Error {
 		};
 	}
 }
+
+export class ConfigurationError extends Error {
+	readonly action: string;
+	readonly statusCode: number;
+
+	constructor({ message, action }: { message?: string; action?: string }) {
+		super(message || "Erro nas configurações do ambiente.");
+		this.name = "ConfigurationError";
+		this.action =
+			action ||
+			"Verifique se as configurações do ambiente estão corretas.";
+		this.statusCode = 500;
+	}
+	toJSON() {
+		return {
+			message: this.message,
+			name: this.name,
+			action: this.action,
+			status_code: this.statusCode,
+		};
+	}
+}

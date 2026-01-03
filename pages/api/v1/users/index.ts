@@ -17,5 +17,6 @@ async function postHandler(
 	const userInputValues = request.body as CreateUserInput;
 	const newUser = await user.create(userInputValues);
 	const { password, ...publicUser } = newUser;
-	return response.status(201).json(publicUser);
+	// return response.status(201).json(publicUser);
+	return response.status(201).json(newUser);
 }
