@@ -71,3 +71,23 @@ export class MethodNotAllowedError extends Error {
 		};
 	}
 }
+
+export class ValidationError extends Error {
+	readonly action: string;
+	readonly statusCode: number;
+
+	constructor({ message, action }: { message?: string; action?: string }) {
+		super(message || "Erro de Validação nos Dados Enviados ocorreu");
+		this.name = "ValidationError";
+		this.action = action || "Ajuste os dados enviados e tente novamente.";
+		this.statusCode = 400;
+	}
+	toJSON() {
+		return {
+			message: this.message,
+			name: this.name,
+			action: this.action,
+			status_code: this.statusCode,
+		};
+	}
+}
