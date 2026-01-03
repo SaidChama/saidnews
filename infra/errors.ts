@@ -71,3 +71,45 @@ export class MethodNotAllowedError extends Error {
 		};
 	}
 }
+
+export class ValidationError extends Error {
+	readonly action: string;
+	readonly statusCode: number;
+
+	constructor({ message, action }: { message?: string; action?: string }) {
+		super(message || "Erro de Validação nos Dados Enviados ocorreu");
+		this.name = "ValidationError";
+		this.action = action || "Ajuste os dados enviados e tente novamente.";
+		this.statusCode = 400;
+	}
+	toJSON() {
+		return {
+			message: this.message,
+			name: this.name,
+			action: this.action,
+			status_code: this.statusCode,
+		};
+	}
+}
+
+export class NotFoundError extends Error {
+	readonly action: string;
+	readonly statusCode: number;
+
+	constructor({ message, action }: { message?: string; action?: string }) {
+		super(message || "Recurso não encontrado.");
+		this.name = "NotFoundError";
+		this.action =
+			action ||
+			"Veririfique se os parâmetros utilizados na busca estão corretos.";
+		this.statusCode = 404;
+	}
+	toJSON() {
+		return {
+			message: this.message,
+			name: this.name,
+			action: this.action,
+			status_code: this.statusCode,
+		};
+	}
+}
