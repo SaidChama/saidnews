@@ -138,7 +138,8 @@ describe("POST /api/v1/users", () => {
 			};
 
 			const errorResponse = {
-				message: "O e-mail informado já está sendo utilizado.",
+				message:
+					"O endereço de e-mail informado já está sendo utilizado.",
 				name: "ValidationError",
 				action: "Utilize outro e-mail para realizar o cadastro.",
 				status_code: 400,
