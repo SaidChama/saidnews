@@ -4,6 +4,12 @@ export type CreateUserInput = {
 	password: string;
 };
 
+export type CreateTestUserInput = {
+	username?: string;
+	email?: string;
+	password?: string;
+};
+
 export type UserRecord = {
 	id: string;
 	username: string;
