@@ -1,6 +1,7 @@
 import { createRouter } from "next-connect";
 import controller from "infra/controller";
 import authentication from "models/authentication";
+import session from "models/session";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { CreateSessionInput } from "./types";
 
@@ -18,5 +19,7 @@ async function postHandler(request: NextApiRequest, response: NextApiResponse) {
 		userInputValues.password,
 	);
 
-	return response.status(201).json({});
+	const newSession = await session.create(authenticatedUser.id);
+
+	return response.status(201).json(newSession);
 }

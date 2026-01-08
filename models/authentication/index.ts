@@ -1,16 +1,15 @@
 import user from "models/user";
 import password from "models/password";
 import { NotFoundError, UnauthorizedError } from "infra/errors";
-import { CreateSessionInput } from "pages/api/v1/sessions/types";
+import { UserRecord } from "models/user/types";
 
 async function getAuthenticatedUser(
 	providedEmail: string,
 	providedPassword: string,
-) {
+): Promise<UserRecord> {
 	try {
 		const storedUser = await findUserByEmail(providedEmail);
 		await validatePassword(providedPassword, storedUser.password);
-
 		return storedUser;
 	} catch (error) {
 		if (error instanceof UnauthorizedError) {
@@ -23,10 +22,8 @@ async function getAuthenticatedUser(
 		throw error;
 	}
 
-	async function findUserByEmail(
-		providedEmail: string,
-	): Promise<CreateSessionInput> {
-		let storedUser: CreateSessionInput;
+	async function findUserByEmail(providedEmail: string): Promise<UserRecord> {
+		let storedUser: UserRecord;
 		try {
 			storedUser = await user.findOneByEmail(providedEmail);
 		} catch (error) {
