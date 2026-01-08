@@ -36,6 +36,37 @@ async function findOneByUsername(username: string): Promise<UserRecord> {
 		}
 	}
 }
+async function findOneByEmail(email: string): Promise<UserRecord> {
+	const userFound = await runSelectQuery(email);
+	return userFound;
+
+	async function runSelectQuery(email: string): Promise<UserRecord> {
+		const result = await database.query({
+			text: `
+			SELECT
+				*
+			FROM
+				users
+			WHERE
+				LOWER(email) = LOWER($1)
+			LIMIT
+				1
+			;`,
+			values: [email],
+		});
+		await validateUserByRowCount(result.rowCount);
+		return result.rows[0];
+	}
+
+	async function validateUserByRowCount(resultRowsNumber: number) {
+		if (resultRowsNumber === 0) {
+			throw new NotFoundError({
+				message: "Usuário não encontrado.",
+				action: "Verifique se o nome de usuário informado está correto.",
+			});
+		}
+	}
+}
 
 async function create(userInputValues: CreateUserInput): Promise<UserRecord> {
 	await validateUniqueUsername(
@@ -187,6 +218,7 @@ async function hashPasswordInObject(userInputValues: CreateUserInput) {
 const user = {
 	create,
 	findOneByUsername,
+	findOneByEmail,
 	update,
 };
 
