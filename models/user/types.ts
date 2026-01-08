@@ -4,6 +4,7 @@ export type CreateUserInput = {
 	password: string;
 };
 
+// Used for testing purposes, within orchestrator
 export type CreateTestUserInput = {
 	username?: string;
 	email?: string;

@@ -1,6 +1,3 @@
-import { errorToJSON } from "next/dist/server/render";
-import { throws } from "node:assert";
-
 export class InternalServerError extends Error {
 	readonly action: string;
 	readonly statusCode: number;
@@ -8,7 +5,7 @@ export class InternalServerError extends Error {
 	constructor({
 		cause,
 		statusCode,
-	}: { cause?: unknown; statusCode?: any } = {}) {
+	}: { cause?: unknown; statusCode?: number } = {}) {
 		super("Um erro interno não esperado ocorreu.", {
 			cause,
 		});
@@ -34,12 +31,100 @@ export class ServiceError extends Error {
 		cause,
 		message,
 	}: { cause?: unknown; message?: string } = {}) {
-		super(message || "Serviço Indisponível no Momento", {
+		super(message || "Serviço indisponível no momento", {
 			cause,
 		});
 		this.name = "ServiceError";
 		this.action = "Verifique se o Serviço está disponível.";
 		this.statusCode = 503;
+	}
+	toJSON() {
+		return {
+			message: this.message,
+			name: this.name,
+			action: this.action,
+			status_code: this.statusCode,
+		};
+	}
+}
+
+export class ValidationError extends Error {
+	readonly action: string;
+	readonly statusCode: number;
+
+	constructor({
+		cause,
+		message,
+		action,
+	}: {
+		cause?: unknown;
+		message?: string;
+		action?: string;
+	}) {
+		super(message || "Erro de Validação nos Dados Enviados ocorreu", {
+			cause,
+		});
+		this.name = "ValidationError";
+		this.action = action || "Ajuste os dados enviados e tente novamente.";
+		this.statusCode = 400;
+	}
+	toJSON() {
+		return {
+			message: this.message,
+			name: this.name,
+			action: this.action,
+			status_code: this.statusCode,
+		};
+	}
+}
+
+export class NotFoundError extends Error {
+	readonly action: string;
+	readonly statusCode: number;
+
+	constructor({
+		cause,
+		message,
+		action,
+	}: {
+		cause?: unknown;
+		message?: string;
+		action?: string;
+	}) {
+		super(message || "Recurso não encontrado.", { cause });
+		this.name = "NotFoundError";
+		this.action =
+			action ||
+			"Veririfique se os parâmetros utilizados na busca estão corretos.";
+		this.statusCode = 404;
+	}
+	toJSON() {
+		return {
+			message: this.message,
+			name: this.name,
+			action: this.action,
+			status_code: this.statusCode,
+		};
+	}
+}
+
+export class UnauthorizedError extends Error {
+	readonly action: string;
+	readonly statusCode: number;
+
+	constructor({
+		cause,
+		message,
+		action,
+	}: {
+		cause?: unknown;
+		message?: string;
+		action?: string;
+	}) {
+		super(message || "Usuário não autenticado.", { cause });
+		this.name = "UnauthorizedError";
+		this.action = action || "Faça novamente o login para continuar.";
+		this.statusCode = 401;
 	}
 	toJSON() {
 		return {
@@ -72,54 +157,20 @@ export class MethodNotAllowedError extends Error {
 	}
 }
 
-export class ValidationError extends Error {
-	readonly action: string;
-	readonly statusCode: number;
-
-	constructor({ message, action }: { message?: string; action?: string }) {
-		super(message || "Erro de Validação nos Dados Enviados ocorreu");
-		this.name = "ValidationError";
-		this.action = action || "Ajuste os dados enviados e tente novamente.";
-		this.statusCode = 400;
-	}
-	toJSON() {
-		return {
-			message: this.message,
-			name: this.name,
-			action: this.action,
-			status_code: this.statusCode,
-		};
-	}
-}
-
-export class NotFoundError extends Error {
-	readonly action: string;
-	readonly statusCode: number;
-
-	constructor({ message, action }: { message?: string; action?: string }) {
-		super(message || "Recurso não encontrado.");
-		this.name = "NotFoundError";
-		this.action =
-			action ||
-			"Veririfique se os parâmetros utilizados na busca estão corretos.";
-		this.statusCode = 404;
-	}
-	toJSON() {
-		return {
-			message: this.message,
-			name: this.name,
-			action: this.action,
-			status_code: this.statusCode,
-		};
-	}
-}
-
 export class ConfigurationError extends Error {
 	readonly action: string;
 	readonly statusCode: number;
 
-	constructor({ message, action }: { message?: string; action?: string }) {
-		super(message || "Erro nas configurações do ambiente.");
+	constructor({
+		cause,
+		message,
+		action,
+	}: {
+		cause?: unknown;
+		message?: string;
+		action?: string;
+	}) {
+		super(message || "Erro nas configurações do ambiente.", { cause });
 		this.name = "ConfigurationError";
 		this.action =
 			action ||

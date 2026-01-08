@@ -1,5 +1,4 @@
 import orchestrator from "tests/orchestrator";
-import { version as uuidVersion } from "uuid";
 import user from "models/user";
 import passwordUtils from "models/password"; // Renamed to passwordUtils to avoid conflict with 'password' field
 
