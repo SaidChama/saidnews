@@ -3,7 +3,9 @@ import { faker } from "@faker-js/faker";
 import database from "infra/database";
 import migrator from "models/migrator";
 import user from "models/user";
-import { CreateTestUserInput } from "models/user/types";
+import { CreateTestUserInput, UserRecord } from "models/user/types";
+import session from "models/session";
+import { SessionRecord } from "models/session/types";
 
 async function waitForAllServices() {
 	await waitForWebServer();
@@ -31,7 +33,9 @@ async function runPendingMigrations() {
 	await migrator.runPendingMigrations();
 }
 
-async function createUser(userObject: CreateTestUserInput) {
+async function createUser(
+	userObject: CreateTestUserInput,
+): Promise<UserRecord> {
 	return await user.create({
 		username:
 			userObject.username ||
@@ -41,11 +45,16 @@ async function createUser(userObject: CreateTestUserInput) {
 	});
 }
 
+async function createSession(userId: string): Promise<SessionRecord> {
+	return await session.create(userId);
+}
+
 const orchestrator = {
 	waitForAllServices,
 	clearDatabase,
 	runPendingMigrations,
 	createUser,
+	createSession,
 };
 
 export default orchestrator;
