@@ -2,9 +2,39 @@ import database from "infra/database";
 import { NotFoundError, ValidationError } from "infra/errors";
 import { CreateUserInput, UserRecord } from "./types";
 import password from "models/password";
-import { validate } from "uuid";
-import { hash } from "node:crypto";
 
+async function findOneById(id: string): Promise<UserRecord> {
+	const userFound = await runSelectQuery(id);
+	return userFound;
+
+	async function runSelectQuery(id: string): Promise<UserRecord> {
+		const results = await database.query({
+			text: `
+			SELECT
+				*
+			FROM
+				users
+			WHERE
+				id = $1
+			LIMIT
+				1
+			;`,
+			values: [id],
+		});
+		await validateUserByRowCount(results.rowCount);
+
+		return results.rows[0];
+	}
+
+	async function validateUserByRowCount(resultRowsNumber: number) {
+		if (resultRowsNumber === 0) {
+			throw new NotFoundError({
+				message: "O id informado não foi encontrado no sistema.",
+				action: "Verifique se o id informado está correto.",
+			});
+		}
+	}
+}
 async function findOneByUsername(username: string): Promise<UserRecord> {
 	const userFound = await runSelectQuery(username);
 	return userFound;
@@ -217,6 +247,7 @@ async function hashPasswordInObject(userInputValues: CreateUserInput) {
 
 const user = {
 	create,
+	findOneById,
 	findOneByUsername,
 	findOneByEmail,
 	update,
