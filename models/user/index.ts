@@ -8,7 +8,7 @@ async function findOneById(id: string): Promise<UserRecord> {
 	return userFound;
 
 	async function runSelectQuery(id: string): Promise<UserRecord> {
-		const result = await database.query({
+		const results = await database.query({
 			text: `
 			SELECT
 				*
@@ -21,9 +21,9 @@ async function findOneById(id: string): Promise<UserRecord> {
 			;`,
 			values: [id],
 		});
-		await validateUserByRowCount(result.rowCount);
+		await validateUserByRowCount(results.rowCount);
 
-		return result.rows[0];
+		return results.rows[0];
 	}
 
 	async function validateUserByRowCount(resultRowsNumber: number) {
