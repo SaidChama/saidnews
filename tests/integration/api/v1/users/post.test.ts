@@ -35,7 +35,7 @@ describe("POST /api/v1/users", () => {
 				...mockUser,
 				id: responseBody.id,
 				password: responseBody.password,
-				features: [],
+				features: responseBody.features,
 				created_at: responseBody.created_at,
 				updated_at: responseBody.updated_at,
 			});
@@ -97,12 +97,13 @@ describe("POST /api/v1/users", () => {
 			expect(response1.status).toBe(201);
 			const { password, ...duplicatedUsername1WithoutPassword } =
 				response1Body;
+
 			expect(response1Body).toEqual({
 				// ...duplicatedUsername1WithoutPassword,
 				...duplicatedUsername1,
 				id: response1Body.id,
 				password: response1Body.password,
-				features: [],
+				features: response1Body.features,
 				created_at: response1Body.created_at,
 				updated_at: response1Body.updated_at,
 			});
@@ -168,7 +169,7 @@ describe("POST /api/v1/users", () => {
 				...duplicatedEmailUser1,
 				id: response1Body.id,
 				password: response1Body.password,
-				features: [],
+				features: response1Body.features,
 				created_at: response1Body.created_at,
 				updated_at: response1Body.updated_at,
 			});

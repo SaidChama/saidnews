@@ -97,7 +97,6 @@ async function findOneByEmail(email: string): Promise<UserRecord> {
 		}
 	}
 }
-
 async function create(userInputValues: CreateUserInput): Promise<UserRecord> {
 	await validateUniqueUsername(
 		userInputValues.username,
@@ -108,6 +107,7 @@ async function create(userInputValues: CreateUserInput): Promise<UserRecord> {
 		"Utilize outro e-mail para realizar o cadastro.",
 	);
 	await hashPasswordInObject(userInputValues);
+	injectDefaultFeaturesInObject(userInputValues);
 
 	const newUser = await runInsertQuery(userInputValues);
 
@@ -119,9 +119,9 @@ async function create(userInputValues: CreateUserInput): Promise<UserRecord> {
 		const results = await database.query({
 			text: `
                 INSERT INTO 
-                    users (username, email, password) 
+                    users (username, email, password, features) 
                 VALUES 
-                    ($1, $2, $3)
+                    ($1, $2, $3, $4)
                 RETURNING 
 					*
                 ;`,
@@ -129,12 +129,16 @@ async function create(userInputValues: CreateUserInput): Promise<UserRecord> {
 				userInputValues.username,
 				userInputValues.email,
 				userInputValues.password,
+				userInputValues.features,
 			],
 		});
 		return results.rows[0];
 	}
-}
 
+	function injectDefaultFeaturesInObject(userInputValues: CreateUserInput) {
+		userInputValues.features = ["read:activation_token"];
+	}
+}
 async function update(
 	username: string,
 	userInputValues: Partial<CreateUserInput>,
@@ -196,7 +200,6 @@ async function update(
 		return results.rows[0];
 	}
 }
-
 async function validateUniqueUsername(username: string, action?: string) {
 	const results = await database.query({
 		text: `
@@ -218,7 +221,6 @@ async function validateUniqueUsername(username: string, action?: string) {
 		});
 	}
 }
-
 async function validateUniqueEmail(email: string, action?: string) {
 	const results = await database.query({
 		text: `
@@ -239,7 +241,6 @@ async function validateUniqueEmail(email: string, action?: string) {
 		});
 	}
 }
-
 async function hashPasswordInObject(userInputValues: CreateUserInput) {
 	const hashedPassword = await password.hash(userInputValues.password);
 	userInputValues.password = hashedPassword;
