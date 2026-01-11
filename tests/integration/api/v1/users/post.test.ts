@@ -35,6 +35,7 @@ describe("POST /api/v1/users", () => {
 				...mockUser,
 				id: responseBody.id,
 				password: responseBody.password,
+				features: [],
 				created_at: responseBody.created_at,
 				updated_at: responseBody.updated_at,
 			});
@@ -101,6 +102,7 @@ describe("POST /api/v1/users", () => {
 				...duplicatedUsername1,
 				id: response1Body.id,
 				password: response1Body.password,
+				features: [],
 				created_at: response1Body.created_at,
 				updated_at: response1Body.updated_at,
 			});
@@ -166,6 +168,7 @@ describe("POST /api/v1/users", () => {
 				...duplicatedEmailUser1,
 				id: response1Body.id,
 				password: response1Body.password,
+				features: [],
 				created_at: response1Body.created_at,
 				updated_at: response1Body.updated_at,
 			});
