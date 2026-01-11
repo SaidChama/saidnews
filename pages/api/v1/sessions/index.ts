@@ -9,6 +9,7 @@ import { CreateSessionInput } from "./types";
 const router = createRouter();
 
 router.post(postHandler);
+router.delete(deleteHandler);
 
 export default router.handler(controller.errorHandlers);
 
@@ -25,4 +26,17 @@ async function postHandler(request: NextApiRequest, response: NextApiResponse) {
 	controller.setSessionCookie(newSession.token, response);
 
 	return response.status(201).json(newSession);
+}
+
+async function deleteHandler(
+	request: NextApiRequest,
+	response: NextApiResponse,
+) {
+	const sessionToken = request.cookies.session_id;
+
+	const sessionObject = await session.findOneValidByToken(sessionToken);
+	const expiredSession = await session.expireById(sessionObject.id);
+	controller.clearSessionCookie(response);
+
+	return response.status(200).json(expiredSession);
 }
