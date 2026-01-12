@@ -39,7 +39,14 @@ describe("Use case: Registration Flow (all successful)", () => {
 			updated_at: createdUserResponseBody.updated_at,
 		});
 	});
-	test("Receive activation email", async () => {});
+	test("Receive activation email", async () => {
+		const lastEmail = await orchestrator.getLastEmail();
+
+		expect(lastEmail.sender).toBe("<contato@chama.dev.br>");
+		expect(lastEmail.recipients[0]).toBe(`<${registrationFlowUser.email}>`);
+		expect(lastEmail.subject).toBe("Ative seu cadastro no Chama News");
+		expect(lastEmail.text).toContain(registrationFlowUser.username);
+	});
 	test("Activate account", () => {});
 	test("Login", () => {});
 	test("Get user information", () => {});
