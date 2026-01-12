@@ -1,8 +1,8 @@
 import webserver from "infra/webserver";
 import activation from "models/activation";
-import { ac } from "node_modules/@faker-js/faker/dist/airline-CWrCIUHH";
-import { act } from "react";
 import orchestrator from "tests/orchestrator";
+import { UserRecord } from "models/user/types";
+import user from "models/user";
 
 beforeAll(async () => {
 	await orchestrator.waitForAllServices();
@@ -17,7 +17,8 @@ describe("Use case: Registration Flow (all successful)", () => {
 		email: "registration.flow@chama.dev.br",
 		password: "Password@123",
 	};
-	let createdUserResponseBody;
+	let createdUserResponseBody: UserRecord;
+	let activationTokenId: string;
 	test("Create user account", async () => {
 		const createdUserResponse = await fetch(
 			"http://localhost:3000/api/v1/users",
@@ -53,9 +54,7 @@ describe("Use case: Registration Flow (all successful)", () => {
 		expect(lastEmail.subject).toBe("Ative seu cadastro no Chama News");
 		expect(lastEmail.text).toContain(registrationFlowUser.username);
 
-		const activationTokenId = orchestrator.extractUUID(
-			lastEmail.text || "",
-		);
+		activationTokenId = orchestrator.extractUUID(lastEmail.text || "");
 
 		expect(lastEmail.text).toContain(
 			`${webserver.origin}/cadastro/ativar/${activationTokenId}`,
@@ -67,7 +66,26 @@ describe("Use case: Registration Flow (all successful)", () => {
 		expect(activationTokenObject.user_id).toBe(createdUserResponseBody.id);
 		expect(activationTokenObject.used_at).toBe(null);
 	});
-	test("Activate account", () => {});
+	test("Activate account", async () => {
+		const activationResponse = await fetch(
+			`http://localhost:3000/api/v1/activations/${activationTokenId}`,
+			{
+				method: "PATCH",
+			},
+		);
+
+		expect(activationResponse.status).toBe(200);
+
+		const activationResponseBody = await activationResponse.json();
+
+		expect(Date.parse(activationResponseBody.used_at)).not.toBeNaN();
+
+		const activatedUser = await user.findOneByUsername(
+			registrationFlowUser.username,
+		);
+
+		expect(activatedUser.features).toContain("create:session");
+	});
 	test("Login", () => {});
 	test("Get user information", () => {});
 });

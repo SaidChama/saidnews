@@ -3,10 +3,11 @@ import { UserRecord } from "models/user/types";
 import { UserActivationRecord } from "./types";
 import database from "infra/database";
 import webserver from "infra/webserver";
+import user from "models/user";
 
 const EXPIRATION_IN_MILLISECONTS = 15 * 60 * 1000; // 15 minutes
 
-async function findOneValidById(tokenId) {
+async function findOneValidById(tokenId: string) {
 	const activationTokenObject = await runSelectQuery(tokenId);
 
 	return activationTokenObject;
@@ -48,7 +49,7 @@ async function create(userId: string): Promise<UserActivationRecord> {
 					($1, $2)
 				RETURNING
 					*
-				;`,
+			;`,
 			values: [userId, expiresAt],
 		});
 		return results.rows[0];
@@ -70,11 +71,43 @@ Atenciosamente.
 `,
 	});
 }
+async function markTokenAsUsed(
+	activationTokenId: string,
+): Promise<UserActivationRecord> {
+	const usedActivationToken = await runUpdateQuery(activationTokenId);
+	return usedActivationToken;
+
+	async function runUpdateQuery(
+		activationTokenId: string,
+	): Promise<UserActivationRecord> {
+		const results = await database.query({
+			text: `
+				UPDATE
+					user_activation_tokens
+				SET
+					used_at = timezone('UTC', now()),
+					updated_at = timezone('UTC', now())
+				WHERE
+					id = $1
+				RETURNING
+					*
+			;`,
+			values: [activationTokenId],
+		});
+		return results.rows[0];
+	}
+}
+async function activateUserByUserId(userId: string): Promise<UserRecord> {
+	const activatedUser = await user.setFeatures(userId, ["create:session"]);
+	return activatedUser;
+}
 
 const activation = {
 	create,
 	sendEmailToUser,
 	findOneValidById,
+	markTokenAsUsed,
+	activateUserByUserId,
 };
 
 export default activation;
