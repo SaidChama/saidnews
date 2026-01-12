@@ -20,10 +20,9 @@ async function postHandler(
 	// const { password, ...publicUser } = newUser;
 	// return response.status(201).json(publicUser);
 
-	// 1. Croar o Token de Ativação
-	// 2. Enviar esse Token de Ativação por E-mail
+	const activationToken = await activation.create(newUser.id);
 
-	await activation.sendEmailToUser(newUser);
+	await activation.sendEmailToUser(newUser, activationToken);
 
 	return response.status(201).json(newUser);
 }
