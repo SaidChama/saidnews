@@ -6,6 +6,30 @@ import webserver from "infra/webserver";
 
 const EXPIRATION_IN_MILLISECONTS = 15 * 60 * 1000; // 15 minutes
 
+async function findOneValidById(tokenId) {
+	const activationTokenObject = await runSelectQuery(tokenId);
+
+	return activationTokenObject;
+
+	async function runSelectQuery(tokenId) {
+		const results = await database.query({
+			text: `
+				SELECT
+					*
+				FROM
+					user_activation_tokens
+				WHERE
+					id = $1
+					AND expires_at > NOW()
+					AND used_at IS NULL
+				LIMIT 1
+			;`,
+			values: [tokenId],
+		});
+
+		return results.rows[0];
+	}
+}
 async function create(userId: string): Promise<UserActivationRecord> {
 	const expiresAt = new Date(Date.now() + EXPIRATION_IN_MILLISECONTS);
 
@@ -30,27 +54,6 @@ async function create(userId: string): Promise<UserActivationRecord> {
 		return results.rows[0];
 	}
 }
-async function findOneByUserId(userId: string): Promise<UserActivationRecord> {
-	const newToken = await runSelectQuery(userId);
-	return newToken;
-
-	async function runSelectQuery(
-		userId: string,
-	): Promise<UserActivationRecord> {
-		const results = await database.query({
-			text: `
-				SELECT
-					*
-				FROM
-					user_activation_tokens
-				WHERE
-					user_id = $1
-				;`,
-			values: [userId],
-		});
-		return results.rows[0];
-	}
-}
 async function sendEmailToUser(
 	user: UserRecord,
 	activationToken: UserActivationRecord,
@@ -71,7 +74,7 @@ Atenciosamente.
 const activation = {
 	create,
 	sendEmailToUser,
-	findOneByUserId,
+	findOneValidById,
 };
 
 export default activation;
