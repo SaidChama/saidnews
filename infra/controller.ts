@@ -10,6 +10,7 @@ import {
 } from "infra/errors";
 import { NextApiRequest, NextApiResponse } from "next";
 import user from "models/user";
+import authorization from "models/authorization";
 
 function onNoMatchHandler(request: NextApiRequest, response: NextApiResponse) {
 	const publicErrorObject = new MethodNotAllowedError();
@@ -103,17 +104,14 @@ async function injectAnonymousUser(request: NextApiRequest) {
 	};
 }
 
-function canRequest(feature: string | string[]) {
+function canRequest(feature: string) {
 	return function canRequestMiddleware(
 		request: NextApiRequest,
 		response: NextApiResponse,
 		next: () => void,
 	) {
-		console.log("Feature: ", feature);
-		console.log("request: ", request.method, request.url);
-		console.log("user: ", request.context?.user);
 		const userTryingToRequest = request.context.user;
-		if (userTryingToRequest.features.includes(feature)) {
+		if (authorization.can(userTryingToRequest, feature)) {
 			return next();
 		}
 

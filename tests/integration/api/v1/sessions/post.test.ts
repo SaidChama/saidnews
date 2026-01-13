@@ -134,6 +134,8 @@ describe("POST /api/v1/sessions", () => {
 				correctEmailPasswordUser,
 			);
 
+			await orchestrator.activateUser(createdUser.id);
+
 			const response = await fetch(
 				"http://localhost:3000/api/v1/sessions",
 				{
@@ -149,8 +151,9 @@ describe("POST /api/v1/sessions", () => {
 			);
 
 			expect(response.status).toBe(201);
-
 			const responseBody = await response.json();
+			console.log(responseBody);
+
 			expect(responseBody).toEqual({
 				id: responseBody.id,
 				token: responseBody.token,

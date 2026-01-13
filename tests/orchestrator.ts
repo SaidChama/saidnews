@@ -6,6 +6,7 @@ import user from "models/user";
 import { CreateTestUserInput, UserRecord } from "models/user/types";
 import session from "models/session";
 import { SessionRecord } from "models/session/types";
+import activation from "models/activation";
 
 const emailHttpUrl = `http://${process.env.EMAIL_HTTP_HOST}:${process.env.EMAIL_HTTP_PORT}`;
 
@@ -97,6 +98,10 @@ function extractUUID(text: string): string | null {
 	return match ? match[0] : null;
 }
 
+function activateUser(userId: string): Promise<UserRecord> {
+	return activation.activateUserByUserId(userId);
+}
+
 const orchestrator = {
 	waitForAllServices,
 	clearDatabase,
@@ -106,6 +111,7 @@ const orchestrator = {
 	deleteAllEmails,
 	getLastEmail,
 	extractUUID,
+	activateUser,
 };
 
 export default orchestrator;
