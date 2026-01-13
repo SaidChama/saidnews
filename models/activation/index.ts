@@ -4,15 +4,17 @@ import { UserActivationRecord } from "./types";
 import database from "infra/database";
 import webserver from "infra/webserver";
 import user from "models/user";
+import authorization from "models/authorization";
+import { ForbiddenError, NotFoundError } from "infra/errors";
 
-const EXPIRATION_IN_MILLISECONTS = 15 * 60 * 1000; // 15 minutes
+const EXPIRATION_IN_MILLISECONDS = 15 * 60 * 1000; // 15 minutes
 
 async function findOneValidById(tokenId: string) {
 	const activationTokenObject = await runSelectQuery(tokenId);
 
 	return activationTokenObject;
 
-	async function runSelectQuery(tokenId) {
+	async function runSelectQuery(tokenId: string) {
 		const results = await database.query({
 			text: `
 				SELECT
@@ -27,12 +29,18 @@ async function findOneValidById(tokenId: string) {
 			;`,
 			values: [tokenId],
 		});
-
+		if (results.rowCount === 0) {
+			throw new NotFoundError({
+				message:
+					"O token de ativação utilizado não foi encontrado no sistema ou expirou.",
+				action: "Faça um novo cadastro.",
+			});
+		}
 		return results.rows[0];
 	}
 }
 async function create(userId: string): Promise<UserActivationRecord> {
-	const expiresAt = new Date(Date.now() + EXPIRATION_IN_MILLISECONTS);
+	const expiresAt = new Date(Date.now() + EXPIRATION_IN_MILLISECONDS);
 
 	const newToken = await runInsertQuery(userId, expiresAt);
 	return newToken;
@@ -98,6 +106,15 @@ async function markTokenAsUsed(
 	}
 }
 async function activateUserByUserId(userId: string): Promise<UserRecord> {
+	const userToActivate = await user.findOneById(userId);
+
+	if (!authorization.can(userToActivate, "read:activation_token")) {
+		throw new ForbiddenError({
+			message: "Você não pode mais utilizar tokens de ativação",
+			action: "Entre em contato com o suporte.",
+		});
+	}
+
 	const activatedUser = await user.setFeatures(userId, [
 		"create:session",
 		"read:session",
@@ -111,6 +128,7 @@ const activation = {
 	findOneValidById,
 	markTokenAsUsed,
 	activateUserByUserId,
+	EXPIRATION_IN_MILLISECONDS,
 };
 
 export default activation;

@@ -52,8 +52,15 @@ async function runPendingMigrations() {
 }
 
 async function createUser(
-	userObject: CreateTestUserInput,
+	userObject?: CreateTestUserInput,
 ): Promise<UserRecord> {
+	if (!userObject) {
+		return await user.create({
+			username: faker.internet.username().replace(/[_.0]/g, ""),
+			email: faker.internet.email(),
+			password: "validpassowrd",
+		});
+	}
 	return await user.create({
 		username:
 			userObject.username ||
@@ -98,8 +105,8 @@ function extractUUID(text: string): string | null {
 	return match ? match[0] : null;
 }
 
-function activateUser(userId: string): Promise<UserRecord> {
-	return activation.activateUserByUserId(userId);
+function activateUser(inactiveUserId: string): Promise<UserRecord> {
+	return activation.activateUserByUserId(inactiveUserId);
 }
 
 const orchestrator = {

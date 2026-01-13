@@ -116,7 +116,7 @@ function canRequest(feature: string) {
 		}
 
 		throw new ForbiddenError({
-			message: "Você não possui pormissão para executar esta ação.",
+			message: "Você não possui permissão para executar esta ação.",
 			action: `Verifique se o seu usuário possui a feature "${feature}"`,
 		});
 	};
