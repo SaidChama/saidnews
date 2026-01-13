@@ -15,6 +15,10 @@ describe("GET /api/v1/user", () => {
 			const validSessionUser = { username: "validUser" };
 			const createdUser = await orchestrator.createUser(validSessionUser);
 
+			const activatedUser = await orchestrator.activateUser(
+				createdUser.id,
+			);
+
 			const sessionObject = await orchestrator.createSession(
 				createdUser.id,
 			);
@@ -32,13 +36,13 @@ describe("GET /api/v1/user", () => {
 			const responseBody = await response.json();
 
 			expect(responseBody).toEqual({
-				id: createdUser.id,
+				id: activatedUser.id,
 				username: validSessionUser.username,
-				email: createdUser.email,
-				password: createdUser.password,
-				features: createdUser.features,
-				created_at: createdUser.created_at.toISOString(),
-				updated_at: createdUser.updated_at.toISOString(),
+				email: activatedUser.email,
+				password: activatedUser.password,
+				features: activatedUser.features,
+				created_at: activatedUser.created_at.toISOString(),
+				updated_at: activatedUser.updated_at.toISOString(),
 			});
 
 			expect(uuidVersion(responseBody.id)).toBe(4);
@@ -109,6 +113,10 @@ describe("GET /api/v1/user", () => {
 			const createdUser =
 				await orchestrator.createUser(expiringSessionUser);
 
+			const activatedUser = await orchestrator.activateUser(
+				createdUser.id,
+			);
+
 			const sessionObject = await orchestrator.createSession(
 				createdUser.id,
 			);
@@ -125,13 +133,13 @@ describe("GET /api/v1/user", () => {
 			const responseBody = await response.json();
 
 			expect(responseBody).toEqual({
-				id: createdUser.id,
+				id: activatedUser.id,
 				username: expiringSessionUser.username,
-				email: createdUser.email,
-				password: createdUser.password,
-				features: createdUser.features,
-				created_at: createdUser.created_at.toISOString(),
-				updated_at: createdUser.updated_at.toISOString(),
+				email: activatedUser.email,
+				password: activatedUser.password,
+				features: activatedUser.features,
+				created_at: activatedUser.created_at.toISOString(),
+				updated_at: activatedUser.updated_at.toISOString(),
 			});
 
 			expect(uuidVersion(responseBody.id)).toBe(4);

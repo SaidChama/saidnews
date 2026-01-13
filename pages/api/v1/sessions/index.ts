@@ -23,7 +23,6 @@ async function postHandler(request: NextApiRequest, response: NextApiResponse) {
 		userInputValues.email,
 		userInputValues.password,
 	);
-	console.log(authenticatedUser);
 
 	if (!authorization.can(authenticatedUser, "create:session")) {
 		throw new ForbiddenError({

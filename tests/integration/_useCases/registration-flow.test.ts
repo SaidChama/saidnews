@@ -3,7 +3,7 @@ import activation from "models/activation";
 import orchestrator from "tests/orchestrator";
 import { UserRecord } from "models/user/types";
 import user from "models/user";
-import { create } from "node:domain";
+import { SessionRecord } from "models/session/types";
 
 beforeAll(async () => {
 	await orchestrator.waitForAllServices();
@@ -20,6 +20,7 @@ describe("Use case: Registration Flow (all successful)", () => {
 	};
 	let createdUserResponseBody: UserRecord;
 	let activationTokenId: string;
+	let createdSessionResponseBody: SessionRecord;
 	test("Create user account", async () => {
 		const createdUserResponse = await fetch(
 			"http://localhost:3000/api/v1/users",
@@ -103,11 +104,19 @@ describe("Use case: Registration Flow (all successful)", () => {
 		);
 
 		expect(createSessionResponse.status).toBe(201);
-		const createSessionResponseBody = await createSessionResponse.json();
+		createdSessionResponseBody = await createSessionResponse.json();
 
-		expect(createSessionResponseBody.user_id).toBe(
+		expect(createdSessionResponseBody.user_id).toBe(
 			createdUserResponseBody.id,
 		);
 	});
-	test("Get user information", async () => {});
+	test("Get user information", async () => {
+		const sessionUser = await user.findOneById(
+			createdSessionResponseBody.user_id,
+		);
+
+		expect(sessionUser.id).toBe(createdUserResponseBody.id);
+		expect(sessionUser.username).toBe(registrationFlowUser.username);
+		expect(sessionUser.email).toBe(registrationFlowUser.email);
+	});
 });
