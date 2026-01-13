@@ -3,6 +3,7 @@ import activation from "models/activation";
 import orchestrator from "tests/orchestrator";
 import { UserRecord } from "models/user/types";
 import user from "models/user";
+import { create } from "node:domain";
 
 beforeAll(async () => {
 	await orchestrator.waitForAllServices();
@@ -86,6 +87,27 @@ describe("Use case: Registration Flow (all successful)", () => {
 
 		expect(activatedUser.features).toContain("create:session");
 	});
-	test("Login", () => {});
-	test("Get user information", () => {});
+	test("Login", async () => {
+		const createSessionResponse = await fetch(
+			"http://localhost:3000/api/v1/sessions",
+			{
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					email: registrationFlowUser.email,
+					password: registrationFlowUser.password,
+				}),
+			},
+		);
+
+		expect(createSessionResponse.status).toBe(201);
+		const createSessionResponseBody = await createSessionResponse.json();
+
+		expect(createSessionResponseBody.user_id).toBe(
+			createdUserResponseBody.id,
+		);
+	});
+	test("Get user information", async () => {});
 });
