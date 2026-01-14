@@ -6,6 +6,7 @@ import user from "models/user";
 import { CreateTestUserInput, UserRecord } from "models/user/types";
 import session from "models/session";
 import { SessionRecord } from "models/session/types";
+import activation from "models/activation";
 
 const emailHttpUrl = `http://${process.env.EMAIL_HTTP_HOST}:${process.env.EMAIL_HTTP_PORT}`;
 
@@ -51,8 +52,15 @@ async function runPendingMigrations() {
 }
 
 async function createUser(
-	userObject: CreateTestUserInput,
+	userObject?: CreateTestUserInput,
 ): Promise<UserRecord> {
+	if (!userObject) {
+		return await user.create({
+			username: faker.internet.username().replace(/[_.0]/g, ""),
+			email: faker.internet.email(),
+			password: "validpassowrd",
+		});
+	}
 	return await user.create({
 		username:
 			userObject.username ||
@@ -77,6 +85,10 @@ async function getLastEmail() {
 	const emailListBody = await emailListResponse.json();
 	const lastEmailItem = emailListBody.pop();
 
+	if (!lastEmailItem) {
+		return null;
+	}
+
 	const emailTextResponse = await fetch(
 		`${emailHttpUrl}/messages/${lastEmailItem.id}.plain`,
 	);
@@ -84,6 +96,17 @@ async function getLastEmail() {
 
 	lastEmailItem.text = emailTextBody;
 	return lastEmailItem;
+}
+
+function extractUUID(text: string): string | null {
+	const match = text.match(
+		/\b[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}\b/,
+	);
+	return match ? match[0] : null;
+}
+
+function activateUser(inactiveUserId: string): Promise<UserRecord> {
+	return activation.activateUserByUserId(inactiveUserId);
 }
 
 const orchestrator = {
@@ -94,6 +117,8 @@ const orchestrator = {
 	createSession,
 	deleteAllEmails,
 	getLastEmail,
+	extractUUID,
+	activateUser,
 };
 
 export default orchestrator;

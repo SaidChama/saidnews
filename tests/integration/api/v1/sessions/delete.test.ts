@@ -118,8 +118,6 @@ describe("DELETE /api/v1/sessions", () => {
 			expect(Date.parse(responseBody.updated_at)).not.toBeNaN();
 
 			// Session Renewal Assertions
-			console.log("AQUI FOI");
-
 			expect(
 				responseBody.expires_at <
 					sessionObject.expires_at.toISOString(),

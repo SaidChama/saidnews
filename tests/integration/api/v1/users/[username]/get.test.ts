@@ -31,6 +31,7 @@ describe("GET /api/v1/users/[username]", () => {
 				...matchCaseUser,
 				id: response2Body.id,
 				password: response2Body.password,
+				features: response2Body.features,
 				created_at: response2Body.created_at,
 				updated_at: response2Body.updated_at,
 			});
@@ -65,6 +66,7 @@ describe("GET /api/v1/users/[username]", () => {
 				...mismatchCaseUser,
 				id: responseBody.id,
 				password: responseBody.password,
+				features: responseBody.features,
 				created_at: responseBody.created_at,
 				updated_at: responseBody.updated_at,
 			});

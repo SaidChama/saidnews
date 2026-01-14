@@ -2,6 +2,7 @@ export type CreateUserInput = {
 	username: string;
 	email: string;
 	password: string;
+	features?: string[];
 };
 
 // Used for testing purposes, within orchestrator
@@ -16,6 +17,7 @@ export type UserRecord = {
 	username: string;
 	email: string;
 	password: string;
+	features: string[];
 	created_at: Date;
 	updated_at: Date;
 };

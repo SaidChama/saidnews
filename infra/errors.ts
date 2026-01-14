@@ -136,6 +136,35 @@ export class UnauthorizedError extends Error {
 	}
 }
 
+export class ForbiddenError extends Error {
+	readonly action: string;
+	readonly statusCode: number;
+
+	constructor({
+		cause,
+		message,
+		action,
+	}: {
+		cause?: unknown;
+		message?: string;
+		action?: string;
+	}) {
+		super(message || "Acesso negado.", { cause });
+		this.name = "ForbiddenError";
+		this.action =
+			action || "Verifique as features necessária para continuar.";
+		this.statusCode = 403;
+	}
+	toJSON() {
+		return {
+			message: this.message,
+			name: this.name,
+			action: this.action,
+			status_code: this.statusCode,
+		};
+	}
+}
+
 export class MethodNotAllowedError extends Error {
 	readonly action: string;
 	readonly statusCode: number;
